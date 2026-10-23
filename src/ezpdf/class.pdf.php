@@ -25,176 +25,176 @@ class Cpdf {
 /**
 * the current number of pdf objects in the document
 */
-var $numObj=0;
+protected $numObj=0;
 /**
 * this array contains all of the pdf objects, ready for final assembly
 */
-var $objects = array();
+protected $objects = array();
 /**
 * the objectId (number within the objects array) of the document catalog
 */
-var $catalogId;
+protected $catalogId;
 /**
 * array carrying information about the fonts that the system currently knows about
 * used to ensure that a font is not loaded twice, among other things
 */
-var $fonts=array();
+protected $fonts=array();
 /**
 * a record of the current font
 */
-var $currentFont='';
+protected $currentFont='';
 /**
 * the current base font
 */
-var $currentBaseFont='';
+protected $currentBaseFont='';
 /**
 * the number of the current font within the font array
 */
-var $currentFontNum=0;
+protected $currentFontNum=0;
 /**
 *
 */
-var $currentNode;
+protected $currentNode;
 /**
 * object number of the current page
 */
-var $currentPage;
+protected $currentPage;
 /**
 * object number of the currently active contents block
 */
-var $currentContents;
+protected $currentContents;
 /**
 * number of fonts within the system
 */
-var $numFonts=0;
+protected $numFonts=0;
 /**
 * current colour for fill operations, defaults to inactive value, all three components should be between 0 and 1 inclusive when active
 */
-var $currentColour=array('r'=>-1,'g'=>-1,'b'=>-1);
+protected $currentColour=array('r'=>-1,'g'=>-1,'b'=>-1);
 /**
 * current colour for stroke operations (lines etc.)
 */
-var $currentStrokeColour=array('r'=>-1,'g'=>-1,'b'=>-1);
+protected $currentStrokeColour=array('r'=>-1,'g'=>-1,'b'=>-1);
 /**
 * current style that lines are drawn in
 */
-var $currentLineStyle='';
+protected $currentLineStyle='';
 /**
 * an array which is used to save the state of the document, mainly the colours and styles
 * it is used to temporarily change to another state, the change back to what it was before
 */
-var $stateStack = array();
+protected $stateStack = array();
 /**
 * number of elements within the state stack
 */
-var $nStateStack = 0;
+protected $nStateStack = 0;
 /**
 * number of page objects within the document
 */
-var $numPages=0;
+protected $numPages=0;
 /**
 * object Id storage stack
 */
-var $stack=array();
+protected $stack=array();
 /**
 * number of elements within the object Id storage stack
 */
-var $nStack=0;
+protected $nStack=0;
 /**
 * an array which contains information about the objects which are not firmly attached to pages
 * these have been added with the addObject function
 */
-var $looseObjects=array();
+protected $looseObjects=array();
 /**
 * array contains infomation about how the loose objects are to be added to the document
 */
-var $addLooseObjects=array();
+protected $addLooseObjects=array();
 /**
 * the objectId of the information object for the document
 * this contains authorship, title etc.
 */
-var $infoObject=0;
+protected $infoObject=0;
 /**
 * number of images being tracked within the document
 */
-var $numImages=0;
+protected $numImages=0;
 /**
 * an array containing options about the document
 * it defaults to turning on the compression of the objects
 */
-var $options=array('compression'=>1);
+protected $options=array('compression'=>1);
 /**
 * the objectId of the first page of the document
 */
-var $firstPageId;
+protected $firstPageId;
 /**
 * used to track the last used value of the inter-word spacing, this is so that it is known
 * when the spacing is changed.
 */
-var $wordSpaceAdjust=0;
+protected $wordSpaceAdjust=0;
 /**
 * the object Id of the procset object
 */
-var $procsetObjectId;
+protected $procsetObjectId;
 /**
 * store the information about the relationship between font families
 * this used so that the code knows which font is the bold version of another font, etc.
 * the value of this array is initialised in the constuctor function.
 */
-var $fontFamilies = array();
+protected $fontFamilies = array();
 /**
 * track if the current font is bolded or italicised
 */
-var $currentTextState = '';
+protected $currentTextState = '';
 /**
 * messages are stored here during processing, these can be selected afterwards to give some useful debug information
 */
-var $messages='';
+protected $messages='';
 /**
 * the ancryption array for the document encryption is stored here
 */
-var $arc4='';
+protected $arc4='';
 /**
 * the object Id of the encryption information
 */
-var $arc4_objnum=0;
+protected $arc4_objnum=0;
 /**
 * the file identifier, used to uniquely identify a pdf document
 */
-var $fileIdentifier='';
+protected $fileIdentifier='';
 /**
 * a flag to say if a document is to be encrypted or not
 */
-var $encrypted=0;
+protected $encrypted=0;
 /**
 * the ancryption key for the encryption of all the document content (structure is not encrypted)
 */
-var $encryptionKey='';
+protected $encryptionKey='';
 /**
 * array which forms a stack to keep track of nested callback functions
 */
-var $callback = array();
+protected $callback = array();
 /**
 * the number of callback functions in the callback array
 */
-var $nCallback = 0;
+protected $nCallback = 0;
 /**
 * store label->id pairs for named destinations, these will be used to replace internal links
 * done this way so that destinations can be defined after the location that links to them
 */
-var $destinations = array();
+protected $destinations = array();
 /**
 * store the stack for the transaction commands, each item in here is a record of the values of all the
 * variables within the class, so that the user can rollback at will (from each 'start' command)
 * note that this includes the objects array, so these can be large.
 */
-var $checkpoint = '';
+protected $checkpoint = '';
 /**
 * class constructor
 * this will start a new document
 * @var array array of 4 numbers, defining the bottom left and upper right corner of the page. first two are normally zero.
 */
-function Cpdf ($pageSize=array(0,0,612,792)){
+public function __construct($pageSize=array(0,0,612,792)){
   $this->newDocument($pageSize);
 
   // also initialize the font families that are known about already
@@ -221,7 +221,7 @@ function Cpdf ($pageSize=array(0,0,612,792)){
 /**
 *destination object, used to specify the location for the user to jump to, presently on opening
 */
-function o_destination($id,$action,$options=''){
+public function o_destination($id,$action,$options=''){
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -256,7 +256,7 @@ function o_destination($id,$action,$options=''){
 /**
 * set the viewer preferences
 */
-function o_viewerPreferences($id,$action,$options=''){
+public function o_viewerPreferences($id,$action,$options=''){
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -294,7 +294,7 @@ function o_viewerPreferences($id,$action,$options=''){
 /**
 * define the document catalog, the overall controller for the document
 */
-function o_catalog($id,$action,$options=''){
+public function o_catalog($id,$action,$options=''){
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -344,7 +344,7 @@ function o_catalog($id,$action,$options=''){
 /**
 * object which is a parent to the pages in the document
 */
-function o_pages($id,$action,$options=''){
+public function o_pages($id,$action,$options=''){
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -442,7 +442,7 @@ function o_pages($id,$action,$options=''){
 /**
 * define the outlines in the doc, empty for now
 */
-function o_outlines($id,$action,$options=''){
+public function o_outlines($id,$action,$options=''){
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -472,7 +472,7 @@ function o_outlines($id,$action,$options=''){
 /**
 * an object to hold the font description
 */
-function o_font($id,$action,$options=''){
+public function o_font($id,$action,$options=''){
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -556,7 +556,7 @@ function o_font($id,$action,$options=''){
 /**
 * a font descriptor, needed for including additional fonts
 */
-function o_fontDescriptor($id,$action,$options=''){
+public function o_fontDescriptor($id,$action,$options=''){
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -607,7 +607,7 @@ function o_fontDescriptor($id,$action,$options=''){
 /**
 * the font encoding
 */
-function o_fontEncoding($id,$action,$options=''){
+public function o_fontEncoding($id,$action,$options=''){
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -644,7 +644,7 @@ function o_fontEncoding($id,$action,$options=''){
 /**
 * the document procset, solves some problems with printing to old PS printers
 */
-function o_procset($id,$action,$options=''){
+public function o_procset($id,$action,$options=''){
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -679,7 +679,7 @@ function o_procset($id,$action,$options=''){
 /**
 * define the document information
 */
-function o_info($id,$action,$options=''){
+public function o_info($id,$action,$options=''){
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -723,7 +723,7 @@ function o_info($id,$action,$options=''){
 /**
 * an action object, used to link to URLS initially
 */
-function o_action($id,$action,$options=''){
+public function o_action($id,$action,$options=''){
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -766,7 +766,7 @@ function o_action($id,$action,$options=''){
 * an annotation object, this will add an annotation to the current page.
 * initially will support just link annotations
 */
-function o_annotation($id,$action,$options=''){
+public function o_annotation($id,$action,$options=''){
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -818,7 +818,7 @@ function o_annotation($id,$action,$options=''){
 /**
 * a page object, it also creates a contents object to hold its contents
 */
-function o_page($id,$action,$options=''){
+public function o_page($id,$action,$options=''){
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -887,7 +887,7 @@ function o_page($id,$action,$options=''){
 /**
 * the contents objects hold all of the content which appears on pages
 */
-function o_contents($id,$action,$options=''){
+public function o_contents($id,$action,$options=''){
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -937,7 +937,7 @@ function o_contents($id,$action,$options=''){
 /**
 * an image object, will be an XObject in the document, includes description and data
 */
-function o_image($id,$action,$options=''){
+public function o_image($id,$action,$options=''){
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -1012,7 +1012,7 @@ function o_image($id,$action,$options=''){
 /**
 * encryption object.
 */
-function o_encryption($id,$action,$options=''){
+public function o_encryption($id,$action,$options=''){
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -1083,7 +1083,7 @@ function o_encryption($id,$action,$options=''){
 /**
 * calculate the 16 byte version of the 128 bit md5 digest of the string
 */
-function md5_16($string){
+public function md5_16($string){
   $tmp = md5($string);
   $out='';
   for ($i=0;$i<=30;$i=$i+2){
@@ -1095,7 +1095,7 @@ function md5_16($string){
 /**
 * initialize the encryption for processing a particular object
 */
-function encryptInit($id){
+public function encryptInit($id){
   $tmp = $this->encryptionKey;
   $hex = dechex($id);
   if (strlen($hex)<6){
@@ -1109,7 +1109,7 @@ function encryptInit($id){
 /**
 * initialize the ARC4 encryption
 */
-function ARC4_init($key=''){
+public function ARC4_init($key=''){
   $this->arc4 = '';
   // setup the control array
   if (strlen($key)==0){
@@ -1135,7 +1135,7 @@ function ARC4_init($key=''){
 /**
 * ARC4 encrypt a text string
 */
-function ARC4($text){
+public function ARC4($text){
   $len=strlen($text);
   $a=0;
   $b=0;
@@ -1161,7 +1161,7 @@ function ARC4($text){
 /**
 * add a link in the document to an external URL
 */
-function addLink($url,$x0,$y0,$x1,$y1){
+public function addLink($url,$x0,$y0,$x1,$y1){
   $this->numObj++;
   $info = array('type'=>'link','url'=>$url,'rect'=>array($x0,$y0,$x1,$y1));
   $this->o_annotation($this->numObj,'new',$info);
@@ -1170,7 +1170,7 @@ function addLink($url,$x0,$y0,$x1,$y1){
 /**
 * add a link in the document to an internal destination (ie. within the document)
 */
-function addInternalLink($label,$x0,$y0,$x1,$y1){
+public function addInternalLink($label,$x0,$y0,$x1,$y1){
   $this->numObj++;
   $info = array('type'=>'ilink','label'=>$label,'rect'=>array($x0,$y0,$x1,$y1));
   $this->o_annotation($this->numObj,'new',$info);
@@ -1181,7 +1181,7 @@ function addInternalLink($label,$x0,$y0,$x1,$y1){
 * can be used to turn it on and/or set the passwords which it will have.
 * also the functions that the user will have are set here, such as print, modify, add
 */
-function setEncryption($userPass='',$ownerPass='',$pc=array()){
+public function setEncryption($userPass='',$ownerPass='',$pc=array()){
   $p=bindec(11000000);
 
   $options = array(
@@ -1211,13 +1211,13 @@ function setEncryption($userPass='',$ownerPass='',$pc=array()){
 /**
 * should be used for internal checks, not implemented as yet
 */
-function checkAllHere(){
+public function checkAllHere(){
 }
 
 /**
 * return the pdf stream as a string returned from the function
 */
-function output($debug=0){
+public function output($debug=0){
 
   if ($debug){
     // turn compression off
@@ -1264,7 +1264,7 @@ function output($debug=0){
 *
 * @access private
 */
-function newDocument($pageSize=array(0,0,612,792)){
+public function newDocument($pageSize=array(0,0,612,792)){
   $this->numObj=0;
   $this->objects = array();
 
@@ -1303,7 +1303,7 @@ function newDocument($pageSize=array(0,0,612,792)){
 *
 * @access private
 */
-function openFont($font){
+public function openFont($font){
   // assume that $font contains both the path and perhaps the extension to the file, split them
   $pos=strrpos($font,'/');
   if ($pos===false){
@@ -1414,7 +1414,7 @@ function openFont($font){
 * and 'differences' => an array of mappings between numbers 0->255 and character names.
 *
 */
-function selectFont($fontName,$encoding='',$set=1){
+public function selectFont($fontName,$encoding='',$set=1){
   if (!isset($this->fonts[$fontName])){
     // load the file
     $this->openFont($fontName);
@@ -1510,7 +1510,6 @@ function selectFont($fontName,$encoding='',$set=1){
         // note that pdf supports only binary format type 1 font files, though there is a
         // simple utility to convert them from pfa to pfb.
         $fp = fopen($fbfile,'rb');
-        $tmp = get_magic_quotes_runtime();
         $data = fread($fp,filesize($fbfile));
         fclose($fp);
 
@@ -1606,7 +1605,7 @@ function selectFont($fontName,$encoding='',$set=1){
 *
 * @access private
 */
-function setCurrentFont(){
+public function setCurrentFont(){
   if (strlen($this->currentBaseFont)==0){
     // then assume an initial font
     $this->selectFont('./fonts/Helvetica.afm');
@@ -1634,7 +1633,7 @@ function setCurrentFont(){
 * function for the user to find out what the ID is of the first page that was created during
 * startup - useful if they wish to add something to it later.
 */
-function getFirstPageId(){
+public function getFirstPageId(){
   return $this->firstPageId;
 }
 
@@ -1643,14 +1642,14 @@ function getFirstPageId(){
 *
 * @access private
 */
-function addContent($content){
+public function addContent($content){
   $this->objects[$this->currentContents]['c'].=$content;
 }
 
 /**
 * sets the colour for fill operations
 */
-function setColor($r,$g,$b,$force=0){
+public function setColor($r,$g,$b,$force=0){
   if ($r>=0 && ($force || $r!=$this->currentColour['r'] || $g!=$this->currentColour['g'] || $b!=$this->currentColour['b'])){
     $this->objects[$this->currentContents]['c'].="\n".sprintf('%.3f',$r).' '.sprintf('%.3f',$g).' '.sprintf('%.3f',$b).' rg';
     $this->currentColour=array('r'=>$r,'g'=>$g,'b'=>$b);
@@ -1660,7 +1659,7 @@ function setColor($r,$g,$b,$force=0){
 /**
 * sets the colour for stroke operations
 */
-function setStrokeColor($r,$g,$b,$force=0){
+public function setStrokeColor($r,$g,$b,$force=0){
   if ($r>=0 && ($force || $r!=$this->currentStrokeColour['r'] || $g!=$this->currentStrokeColour['g'] || $b!=$this->currentStrokeColour['b'])){
     $this->objects[$this->currentContents]['c'].="\n".sprintf('%.3f',$r).' '.sprintf('%.3f',$g).' '.sprintf('%.3f',$b).' RG';
     $this->currentStrokeColour=array('r'=>$r,'g'=>$g,'b'=>$b);
@@ -1670,14 +1669,14 @@ function setStrokeColor($r,$g,$b,$force=0){
 /**
 * draw a line from one set of coordinates to another
 */
-function line($x1,$y1,$x2,$y2){
+public function line($x1,$y1,$x2,$y2){
   $this->objects[$this->currentContents]['c'].="\n".sprintf('%.3f',$x1).' '.sprintf('%.3f',$y1).' m '.sprintf('%.3f',$x2).' '.sprintf('%.3f',$y2).' l S';
 }
 
 /**
 * draw a bezier curve based on 4 control points
 */
-function curve($x0,$y0,$x1,$y1,$x2,$y2,$x3,$y3){
+public function curve($x0,$y0,$x1,$y1,$x2,$y2,$x3,$y3){
   // in the current line style, draw a bezier curve from (x0,y0) to (x3,y3) using the other two points
   // as the control points for the curve.
   $this->objects[$this->currentContents]['c'].="\n".sprintf('%.3f',$x0).' '.sprintf('%.3f',$y0).' m '.sprintf('%.3f',$x1).' '.sprintf('%.3f',$y1);
@@ -1687,14 +1686,14 @@ function curve($x0,$y0,$x1,$y1,$x2,$y2,$x3,$y3){
 /**
 * draw a part of an ellipse
 */
-function partEllipse($x0,$y0,$astart,$afinish,$r1,$r2=0,$angle=0,$nSeg=8){
+public function partEllipse($x0,$y0,$astart,$afinish,$r1,$r2=0,$angle=0,$nSeg=8){
   $this->ellipse($x0,$y0,$r1,$r2,$angle,$nSeg,$astart,$afinish,0);
 }
 
 /**
 * draw a filled ellipse
 */
-function filledEllipse($x0,$y0,$r1,$r2=0,$angle=0,$nSeg=8,$astart=0,$afinish=360){
+public function filledEllipse($x0,$y0,$r1,$r2=0,$angle=0,$nSeg=8,$astart=0,$afinish=360){
   return $this->ellipse($x0,$y0,$r1,$r2=0,$angle,$nSeg,$astart,$afinish,1,1);
 }
 
@@ -1708,7 +1707,7 @@ function filledEllipse($x0,$y0,$r1,$r2=0,$angle=0,$nSeg=8,$astart=0,$afinish=360
 * nSeg is not allowed to be less than 2, as this will simply draw a line (and will even draw a
 * pretty crappy shape at 2, as we are approximating with bezier curves.
 */
-function ellipse($x0,$y0,$r1,$r2=0,$angle=0,$nSeg=8,$astart=0,$afinish=360,$close=1,$fill=0){
+public function ellipse($x0,$y0,$r1,$r2=0,$angle=0,$nSeg=8,$astart=0,$afinish=360,$close=1,$fill=0){
   if ($r1==0){
     return;
   }
@@ -1784,7 +1783,7 @@ function ellipse($x0,$y0,$r1,$r2=0,$angle=0,$nSeg=8,$astart=0,$afinish=360,$clos
 *   (2,1) is 2 on, 1 off, 2 on, 1 off.. etc
 * phase is a modifier on the dash pattern which is used to shift the point at which the pattern starts.
 */
-function setLineStyle($width=1,$cap='',$join='',$dash='',$phase=0){
+public function setLineStyle($width=1,$cap='',$join='',$dash='',$phase=0){
 
   // this is quite inefficient in that it sets all the parameters whenever 1 is changed, but will fix another day
   $string = '';
@@ -1813,7 +1812,7 @@ function setLineStyle($width=1,$cap='',$join='',$dash='',$phase=0){
 /**
 * draw a polygon, the syntax for this is similar to the GD polygon command
 */
-function polygon($p,$np,$f=0){
+public function polygon($p,$np,$f=0){
   $this->objects[$this->currentContents]['c'].="\n";
   $this->objects[$this->currentContents]['c'].=sprintf('%.3f',$p[0]).' '.sprintf('%.3f',$p[1]).' m ';
   for ($i=2;$i<$np*2;$i=$i+2){
@@ -1830,7 +1829,7 @@ function polygon($p,$np,$f=0){
 * a filled rectangle, note that it is the width and height of the rectangle which are the secondary paramaters, not
 * the coordinates of the upper-right corner
 */
-function filledRectangle($x1,$y1,$width,$height){
+public function filledRectangle($x1,$y1,$width,$height){
   $this->objects[$this->currentContents]['c'].="\n".sprintf('%.3f',$x1).' '.sprintf('%.3f',$y1).' '.sprintf('%.3f',$width).' '.sprintf('%.3f',$height).' re f';
 }
 
@@ -1838,7 +1837,7 @@ function filledRectangle($x1,$y1,$width,$height){
 * draw a rectangle, note that it is the width and height of the rectangle which are the secondary paramaters, not
 * the coordinates of the upper-right corner
 */
-function rectangle($x1,$y1,$width,$height){
+public function rectangle($x1,$y1,$width,$height){
   $this->objects[$this->currentContents]['c'].="\n".sprintf('%.3f',$x1).' '.sprintf('%.3f',$y1).' '.sprintf('%.3f',$width).' '.sprintf('%.3f',$height).' re S';
 }
 
@@ -1846,7 +1845,7 @@ function rectangle($x1,$y1,$width,$height){
 * add a new page to the document
 * this also makes the new page the current active object
 */
-function newPage($insert=0,$id=0,$pos='after'){
+public function newPage($insert=0,$id=0,$pos='after'){
 
   // if there is a state saved, then go up the stack closing them
   // then on the new page, re-open them with the right setings
@@ -1894,7 +1893,7 @@ function newPage($insert=0,$id=0,$pos='after'){
 * output the pdf code, streaming it to the browser
 * the relevant headers are set so that hopefully the browser will recognise it
 */
-function stream($options=''){
+public function stream($options=''){
   // setting the options allows the adjustment of the headers
   // values at the moment are:
   // 'Content-Disposition'=>'filename'  - sets the filename, though not too sure how well this will
@@ -1924,7 +1923,7 @@ function stream($options=''){
 /**
 * return the height in units of the current font in the given size
 */
-function getFontHeight($size){
+public function getFontHeight($size){
   if (!$this->numFonts){
     $this->selectFont('./fonts/Helvetica');
   }
@@ -1938,7 +1937,7 @@ function getFontHeight($size){
 * if you add this number to the baseline, you get the level of the bottom of the font
 * it is in the pdf user units
 */
-function getFontDecender($size){
+public function getFontDecender($size){
   // note that this will most likely return a negative value
   if (!$this->numFonts){
     $this->selectFont('./fonts/Helvetica');
@@ -1953,7 +1952,7 @@ function getFontDecender($size){
 *
 * @access private
 */
-function filterText($text){
+public function filterText($text){
   $text = str_replace('\\','\\\\',$text);
   $text = str_replace('(','\(',$text);
   $text = str_replace(')','\)',$text);
@@ -1972,7 +1971,7 @@ function filterText($text){
 *
 * @access private
 */
-function PRVTgetTextPosition($x,$y,$angle,$size,$wa,$text){
+public function PRVTgetTextPosition($x,$y,$angle,$size,$wa,$text){
   // given this information return an array containing x and y for the end position as elements 0 and 1
   $w = $this->getTextWidth($size,$text);
   // need to adjust for the number of spaces in this text
@@ -1988,7 +1987,7 @@ function PRVTgetTextPosition($x,$y,$angle,$size,$wa,$text){
 *
 * @access private
 */
-function PRVTcheckTextDirective(&$text,$i,&$f){
+public function PRVTcheckTextDirective(&$text,$i,&$f){
   $x=0;
   $y=0;
   return $this->PRVTcheckTextDirective1($text,$i,$f,0,$x,$y);
@@ -2003,7 +2002,7 @@ function PRVTcheckTextDirective(&$text,$i,&$f){
 *
 * @access private
 */
-function PRVTcheckTextDirective1(&$text,$i,&$f,$final,&$x,&$y,$size=0,$angle=0,$wordSpaceAdjust=0){
+public function PRVTcheckTextDirective1(&$text,$i,&$f,$final,&$x,&$y,$size=0,$angle=0,$wordSpaceAdjust=0){
   $directive = 0;
   $j=$i;
   if ($text[$j]=='<'){
@@ -2072,7 +2071,7 @@ function PRVTcheckTextDirective1(&$text,$i,&$f,$final,&$x,&$y,$size=0,$angle=0,$
                   // for simplicity, just take from the end, fix this another day
                   $this->nCallback--;
                   if ($this->nCallback<0){
-                    $this->nCallBack=0;
+                    $this->nCallback=0;
                   }
                 }
               }
@@ -2151,7 +2150,7 @@ function PRVTcheckTextDirective1(&$text,$i,&$f,$final,&$x,&$y,$size=0,$angle=0,$
 /**
 * add text to the document, at a specified location, size and angle on the page
 */
-function addText($x,$y,$size,$text,$angle=0,$wordSpaceAdjust=0){
+public function addText($x,$y,$size,$text,$angle=0,$wordSpaceAdjust=0){
   if (!$this->numFonts){$this->selectFont('./fonts/Helvetica');}
 
   // if there are any open callbacks, then they should be called, to show the start of the line
@@ -2243,7 +2242,7 @@ function addText($x,$y,$size,$text,$angle=0,$wordSpaceAdjust=0){
 * calculate how wide a given text string will be on a page, at a given size.
 * this can be called externally, but is alse used by the other class functions
 */
-function getTextWidth($size,$text){
+public function getTextWidth($size,$text){
   // this function should not change any of the settings, though it will need to
   // track any directives which change during calculation, so copy them at the start
   // and put them back at the end.
@@ -2295,7 +2294,7 @@ function getTextWidth($size,$text){
 *
 * @access private
 */
-function PRVTadjustWrapText($text,$actual,$width,&$x,&$adjust,$justification){
+public function PRVTadjustWrapText($text,$actual,$width,&$x,&$adjust,$justification){
   switch ($justification){
     case 'left':
       return;
@@ -2326,7 +2325,7 @@ function PRVTadjustWrapText($text,$actual,$width,&$x,&$adjust,$justification){
 * and return the remainder.
 * justification and angle can also be specified for the text
 */
-function addTextWrap($x,$y,$width,$size,$text,$justification='left',$angle=0,$test=0){
+public function addTextWrap($x,$y,$width,$size,$text,$justification='left',$angle=0,$test=0){
   // this will display the text, and if it goes beyond the width $width, will backtrack to the
   // previous space or hyphen, and return the remainder of the text.
 
@@ -2431,7 +2430,7 @@ function addTextWrap($x,$y,$width,$size,$text,$justification='left',$angle=0,$te
   $this->currentTextState = $store_currentTextState;
   $this->setCurrentFont();
   if (!$test){
-    $this->addText($x,$y,$size,$text,$angle,$adjust,$angle);
+    $this->addText($x,$y,$size,$text,$angle,$adjust);
   }
   return '';
 }
@@ -2442,7 +2441,7 @@ function addTextWrap($x,$y,$width,$size,$text,$justification='left',$angle=0,$te
 * This is to get around not being able to have open 'q' across pages
 *
 */
-function saveState($pageEnd=0){
+public function saveState($pageEnd=0){
   if ($pageEnd){
     // this will be called at a new page to return the state to what it was on the
     // end of the previous page, before the stack was closed down
@@ -2466,7 +2465,7 @@ function saveState($pageEnd=0){
 /**
 * restore a previously saved state
 */
-function restoreState($pageEnd=0){
+public function restoreState($pageEnd=0){
   if (!$pageEnd){
     $n = $this->nStateStack;
     $this->currentColour = $this->stateStack[$n]['col'];
@@ -2485,7 +2484,7 @@ function restoreState($pageEnd=0){
 * this object will not appear until it is included within a page.
 * the function will return the object number
 */
-function openObject(){
+public function openObject(){
   $this->nStack++;
   $this->stack[$this->nStack]=array('c'=>$this->currentContents,'p'=>$this->currentPage);
   // add a new object of the content type, to hold the data flow
@@ -2500,7 +2499,7 @@ function openObject(){
 /**
 * open an existing object for editing
 */
-function reopenObject($id){
+public function reopenObject($id){
    $this->nStack++;
    $this->stack[$this->nStack]=array('c'=>$this->currentContents,'p'=>$this->currentPage);
    $this->currentContents=$id;
@@ -2513,7 +2512,7 @@ function reopenObject($id){
 /**
 * close an object
 */
-function closeObject(){
+public function closeObject(){
   // close the object, as long as there was one open in the first place, which will be indicated by
   // an objectId on the stack.
   if ($this->nStack>0){
@@ -2528,7 +2527,7 @@ function closeObject(){
 /**
 * stop an object from appearing on pages from this point on
 */
-function stopObject($id){
+public function stopObject($id){
   // if an object has been appearing on pages up to now, then stop it, this page will
   // be the last one that could contian it.
   if (isset($this->addLooseObjects[$id])){
@@ -2539,7 +2538,7 @@ function stopObject($id){
 /**
 * after an object has been created, it wil only show if it has been added, using this function.
 */
-function addObject($id,$options='add'){
+public function addObject($id,$options='add'){
   // add the specified object to the page
   if (isset($this->looseObjects[$id]) && $this->currentContents!=$id){
     // then it is a valid object, and it is not being added to itself
@@ -2585,7 +2584,7 @@ function addObject($id,$options='add'){
 /**
 * add content to the documents info object
 */
-function addInfo($label,$value=0){
+public function addInfo($label,$value=0){
   // this will only work if the label is one of the valid ones.
   // modify this so that arrays can be passed as well.
   // if $label is an array then assume that it is key=>value pairs
@@ -2602,7 +2601,7 @@ function addInfo($label,$value=0){
 /**
 * set the viewer preferences of the document, it is up to the browser to obey these.
 */
-function setPreferences($label,$value=0){
+public function setPreferences($label,$value=0){
   // this will only work if the label is one of the valid ones.
   if (is_array($label)){
     foreach ($label as $l=>$v){
@@ -2618,7 +2617,7 @@ function setPreferences($label,$value=0){
 *
 * @access private
 */
-function PRVT_getBytes(&$data,$pos,$num){
+public function PRVT_getBytes(&$data,$pos,$num){
   // return the integer represented by $num bytes from $pos within $data
   $ret=0;
   for ($i=0;$i<$num;$i++){
@@ -2632,10 +2631,9 @@ function PRVT_getBytes(&$data,$pos,$num){
 * add a PNG image into the document, from a file
 * this should work with remote files
 */
-function addPngFromFile($file,$x,$y,$w=0,$h=0){
+public function addPngFromFile($file,$x,$y,$w=0,$h=0){
   // read in a png file, interpret it, then add to the system
   $error=0;
-  $tmp = get_magic_quotes_runtime();
   $fp = @fopen($file,'rb');
   if ($fp){
     $data='';
@@ -2818,7 +2816,7 @@ function addPngFromFile($file,$x,$y,$w=0,$h=0){
 /**
 * add a JPEG image into the document, from a file
 */
-function addJpegFromFile($img,$x,$y,$w=0,$h=0){
+public function addJpegFromFile($img,$x,$y,$w=0,$h=0){
   // attempt to add a jpeg image straight from a file, using no GD commands
   // note that this function is unable to operate on a remote file.
 
@@ -2847,10 +2845,7 @@ function addJpegFromFile($img,$x,$y,$w=0,$h=0){
   }
 
   $fp=fopen($img,'rb');
-
-  $tmp = get_magic_quotes_runtime();
   $data = fread($fp,filesize($img));
-
   fclose($fp);
 
   $this->addJpegImage_common($data,$x,$y,$w,$h,$imageWidth,$imageHeight,$channels);
@@ -2861,7 +2856,7 @@ function addJpegFromFile($img,$x,$y,$w=0,$h=0){
 * this function is not all that reliable, and I would probably encourage people to use
 * the file based functions
 */
-function addImage(&$img,$x,$y,$w=0,$h=0,$quality=75){
+public function addImage(&$img,$x,$y,$w=0,$h=0,$quality=75){
   // add a new image into the current location, as an external object
   // add the image at $x,$y, and with width and height as defined by $w & $h
 
@@ -2897,7 +2892,6 @@ function addImage(&$img,$x,$y,$w=0,$h=0,$quality=75){
   imagejpeg($img,$tmpName,$quality);
   $fp=fopen($tmpName,'rb');
 
-  $tmp = get_magic_quotes_runtime();
   $fp = @fopen($tmpName,'rb');
   if ($fp){
     $data='';
@@ -2920,7 +2914,7 @@ function addImage(&$img,$x,$y,$w=0,$h=0,$quality=75){
 *
 * @access private
 */
-function addJpegImage_common(&$data,$x,$y,$w=0,$h=0,$imageWidth,$imageHeight,$channels=3){
+public function addJpegImage_common(&$data,$x,$y,$w=0,$h=0,$imageWidth,$imageHeight,$channels=3){
   // note that this function is not to be called externally
   // it is just the common code between the GD and the file options
   $this->numImages++;
@@ -2938,7 +2932,7 @@ function addJpegImage_common(&$data,$x,$y,$w=0,$h=0,$imageWidth,$imageHeight,$ch
 /**
 * specify where the document should open when it first starts
 */
-function openHere($style,$a=0,$b=0,$c=0){
+public function openHere($style,$a=0,$b=0,$c=0){
   // this function will open the document at a specified page, in a specified style
   // the values for style, and the required paramters are:
   // 'XYZ'  left, top, zoom
@@ -2958,7 +2952,7 @@ function openHere($style,$a=0,$b=0,$c=0){
 /**
 * create a labelled destination within the document
 */
-function addDestination($label,$style,$a=0,$b=0,$c=0){
+public function addDestination($label,$style,$a=0,$b=0,$c=0){
   // associates the given label with the destination, it is done this way so that a destination can be specified after
   // it has been linked to
   // styles are the same as the 'openHere' function
@@ -2974,7 +2968,7 @@ function addDestination($label,$style,$a=0,$b=0,$c=0){
 * and for the user to add new ones for their fonts. The default bahavious can be overridden should
 * that be desired.
 */
-function setFontFamily($family,$options=''){
+public function setFontFamily($family,$options=''){
   if (!is_array($options)){
     if ($family=='init'){
       // set the known family groups
@@ -3011,14 +3005,14 @@ function setFontFamily($family,$options=''){
 /**
 * used to add messages for use in debugging
 */
-function addMessage($message){
+public function addMessage($message){
   $this->messages.=$message."\n";
 }
 
 /**
 * a few functions which should allow the document to be treated transactionally.
 */
-function transaction($action){
+public function transaction($action){
   switch ($action){
     case 'start':
       // store all the data away into the checkpoint variable

@@ -18,62 +18,78 @@
 error_reporting(E_ALL);
 set_time_limit(1800);
 
-include 'class.ezpdf.php';
+require_once __DIR__ . '/src/ezpdf/class.ezpdf.php';
 
 // define a clas extension to allow the use of a callback to get the table of contents, and to put the dots in the toc
 class Creport extends Cezpdf {
 
-var $reportContents = array();
+  private $reportContents = array();
 
-function Creport($p,$o){
-  $this->Cezpdf($p,$o);
-}
-
-function rf($info){
-  // this callback records all of the table of contents entries, it also places a destination marker there
-  // so that it can be linked too
-  $tmp = $info['p'];
-  $lvl = $tmp[0];
-  $lbl = rawurldecode(substr($tmp,1));
-  $num=$this->ezWhatPageNumber($this->ezGetCurrentPageNumber());
-  $this->reportContents[] = array($lbl,$num,$lvl );
-  $this->addDestination('toc'.(count($this->reportContents)-1),'FitH',$info['y']+$info['height']);
-}
-
-function dots($info){
-  // draw a dotted line over to the right and put on a page number
-  $tmp = $info['p'];
-  $lvl = $tmp[0];
-  $lbl = substr($tmp,1);
-  $xpos = 520;
-
-  switch($lvl){
-    case '1':
-      $size=16;
-      $thick=1;
-      break;
-    case '2':
-      $size=12;
-      $thick=0.5;
-      break;
+  public function __construct($paper,$orientation){
+    parent::__construct($paper,$orientation);
   }
 
-  $this->saveState();
-  $this->setLineStyle($thick,'round','',array(0,10));
-  $this->line($xpos,$info['y'],$info['x']+5,$info['y']);
-  $this->restoreState();
-  $this->addText($xpos+5,$info['y'],$size,$lbl);
+  public function rf($info){
+    // this callback records all of the table of contents entries, it also places a destination marker there
+    // so that it can be linked too
+    $tmp = $info['p'];
+    $lvl = $tmp[0];
+    $lbl = rawurldecode(substr($tmp,1));
+    $num=$this->ezWhatPageNumber($this->ezGetCurrentPageNumber());
+    $this->reportContents[] = array($lbl,$num,$lvl );
+    $this->addDestination('toc'.(count($this->reportContents)-1),'FitH',$info['y']+$info['height']);
+  }
 
+  public function dots($info){
+    // draw a dotted line over to the right and put on a page number
+    $tmp = $info['p'];
+    $lvl = $tmp[0];
+    $lbl = substr($tmp,1);
+    $xpos = 520;
 
+    switch($lvl){
+      case '1':
+        $size=16;
+        $thick=1;
+        break;
+      case '2':
+        $size=12;
+        $thick=0.5;
+        break;
+    }
+
+    $this->saveState();
+    $this->setLineStyle($thick,'round','',array(0,10));
+    $this->line($xpos,$info['y'],$info['x']+5,$info['y']);
+    $this->restoreState();
+    $this->addText($xpos+5,$info['y'],$size,$lbl);
+  }
+
+  public function getReportY(){
+    return $this->y;
+  }
+
+  public function getReportPageCount(){
+    return $this->ezPageCount;
+  }
+
+  public function getReportLayout(){
+    return array(
+      'leftMargin'=>$this->ez['leftMargin'],
+      'rightMargin'=>$this->ez['rightMargin'],
+      'pageWidth'=>$this->ez['pageWidth']
+    );
+  }
+
+  public function getReportContents(){
+    return $this->reportContents;
+  }
 }
 
 
-}
 // I am in NZ, so will design my page for A4 paper.. but don't get me started on that.
 // (defaults to legal)
 // this code has been modified to use ezpdf.
-
-//$pdf = new Cezpdf('a4','portrait');
 $pdf = new Creport('a4','portrait');
 
 $pdf -> ezSetMargins(50,70,50,50);
@@ -94,8 +110,8 @@ $pdf->addObject($all,'all');
 $pdf->ezSetDy(-100);
 
 //$mainFont = './fonts/Helvetica.afm';
-$mainFont = './fonts/Times-Roman.afm';
-$codeFont = './fonts/Courier.afm';
+$mainFont = __DIR__ . '/src/ezpdf/fonts/Times-Roman.afm';
+$codeFont = __DIR__ . '/src/ezpdf/fonts/Courier.afm';
 // select a font
 $pdf->selectFont($mainFont);
 
@@ -113,7 +129,7 @@ function ros_logo(&$pdf,$x,$y,$height,$wl=0,$wr=0){
   $pdf->saveState();
   $h=100;
   $factor = $height/$h;
-  $pdf->selectFont('./fonts/Helvetica-Bold.afm');
+  $pdf->selectFont(__DIR__ . '/src/ezpdf/fonts/Helvetica-Bold.afm');
   $text = 'R&OS';
   $ts=100*$factor;
   $th = $pdf->getFontHeight($ts);
@@ -130,28 +146,16 @@ function ros_logo(&$pdf,$x,$y,$height,$wl=0,$wr=0){
   return $height;
 }
 
-ros_logo($pdf,150,$pdf->y-100,80,150,200);
+ros_logo($pdf,150,$pdf->getReportY()-100,80,150,200);
 $pdf->selectFont($mainFont);
 
-/*
-if (file_exists('ros.jpg')){
-  $pdf->addJpegFromFile('ros.jpg',199,$pdf->y-100,200,0);
-} else {
-  // comment out these two lines if you do not have GD jpeg support
-  // I couldn't quickly see a way to test for this support from the code.
-  // you could also copy the file from the locatioin shown and put it in the directory, then 
-  // the code above which doesn't use GD will be activated.
-  $img = ImageCreatefromjpeg('http://www.ros.co.nz/pdf/ros.jpg');
-  $pdf-> addImage($img,199,$pdf->y-100,200,0);
-}
-*/
 //-----------------------------------------------------------
 // load up the document content
-$data=file('./data.txt');
+$data=file(__DIR__ . '/data.txt');
 
 // try adding the faq's to the document, this will not work for people re-building the file from the 
 // download as I am not going to put in the faq file with that
-$faqFile = '../ros/pdf/faqs.inc';
+$faqFile = __DIR__ . '/../ros/pdf/faqs.inc';
 if (file_exists($faqFile)){
   // then the file is there.
   $data[] = "#NP\n";
@@ -238,13 +242,14 @@ foreach ($data as $line){
         $pdf->transaction('start');
         $ok=0;
         while (!$ok){
-          $thisPageNum = $pdf->ezPageCount;
+          $thisPageNum = $pdf->getReportPageCount();
           $pdf->saveState();
           $pdf->setColor(0.9,0.9,0.9);
-          $pdf->filledRectangle($pdf->ez['leftMargin'],$pdf->y-$pdf->getFontHeight(18)+$pdf->getFontDecender(18),$pdf->ez['pageWidth']-$pdf->ez['leftMargin']-$pdf->ez['rightMargin'],$pdf->getFontHeight(18));
+          $layout = $pdf->getReportLayout();
+          $pdf->filledRectangle($layout['leftMargin'],$pdf->getReportY()-$pdf->getFontHeight(18)+$pdf->getFontDecender(18),$layout['pageWidth']-$layout['leftMargin']-$layout['rightMargin'],$pdf->getFontHeight(18));
           $pdf->restoreState();
           $pdf->ezText($tmp2,18,array('justification'=>'left'));
-          if ($pdf->ezPageCount==$thisPageNum){
+          if ($pdf->getReportPageCount()==$thisPageNum){
             $pdf->transaction('commit');
             $ok=1;
           } else {
@@ -270,7 +275,7 @@ $pdf->ezInsertMode(1,1,'after');
 $pdf->ezNewPage();
 $pdf->ezText("Contents\n",26,array('justification'=>'centre'));
 $xpos = 520;
-$contents = $pdf->reportContents;
+$contents = $pdf->getReportContents();
 foreach($contents as $k=>$v){
   switch ($v[2]){
     case '1':
@@ -283,7 +288,7 @@ foreach($contents as $k=>$v){
   }
 }
 
-
+$d = $_GET['d'] ?? false;
 if (isset($d) && $d){
   $pdfcode = $pdf->ezOutput(1);
   $pdfcode = str_replace("\n","\n<br>",htmlspecialchars($pdfcode));
