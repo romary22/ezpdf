@@ -1,5 +1,25 @@
 {
-    "name": "rebuy/ezpdf",
+    "name": "romary22/ezpdf",
+    "type": "library",
+    "description": "",
+    "keywords": ["pdf", "document"],
+    "homepage": "https://github.com/romary22/ezpdf",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/romary22/ezpdf.git"
+        }
+    ],
+    "license": "LGPL v2.1",
+    "authors": [
+        {
+            "name": "Romary Oswalt",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=8.3.0"
+    },
     "autoload": {
         "classmap": ["src/"]
     }
